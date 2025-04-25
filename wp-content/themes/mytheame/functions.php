@@ -1,8 +1,11 @@
 <?php
-// Enqueue theme CSS
-function custom_theme_assets() {
-    wp_enqueue_style('style', get_stylesheet_uri());
+function expose_acf_fields_to_rest($response, $post, $request) {
+    if (!function_exists('get_fields')) return $response;
+
+    $acf = get_fields($post->ID);
+    if ($acf) {
+        $response->data['acf'] = $acf;
+    }
+    return $response;
 }
-// Hook to enqueue scripts and styles
-add_action('wp_enqueue_scripts', 'custom_theme_assets');
-?>
+add_filter('rest_prepare_post', 'expose_acf_fields_to_rest', 10, 3);
